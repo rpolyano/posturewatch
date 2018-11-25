@@ -22,14 +22,12 @@
 <script src="js/utils/BRFv4Stats.js"></script>
 <script src="js/Tone.min.js"></script>
 <script src="js/BRFv4DemoMinimalWebcam.js"></script>
-<button type="button" onclick="setGood()">Calibrate Good</button>
-<button type="button" onclick="setBad()">Calibrate Bad</button>
+<button type="button" onclick="calibrate()">Calibrate</button>
 <button type="button" onclick="playAudio()">Test Missile Alert</button>
 
 <script>
 
 	
-	var audio = new Audio('assets/alarm.wav');
 	var tiltSpan = document.getElementById('_tilt');
 	var noseTipSpan = document.getElementById('_noseTipY');
 	var postureStateSpan = document.getElementById('_postureState');
@@ -39,6 +37,7 @@
 	var postureIsBad = false;
 	
 	var postureY = 0;
+	var chinY = 0;
 	
 	
 	const alertDelay = 2000;
@@ -48,13 +47,9 @@
 	Tone.Transport.schedule(playAlert, 0);
 
 	
-	function setGood() {
+	function calibrate() {
 		goodPostureY = postureY;
-	}
-	
-	function setBad() {
-		var delta = (postureY - goodPostureY) * 0.7
-		badPostureY = goodPostureY + delta;
+		badPostureY = Math.min(chinY, goodPostureY + 200);
 	}
 	
 	function playAlert(time) {
@@ -144,6 +139,7 @@
 	
 	tiltSpan.innerHTML = face.rotationX * 180.0/Math.PI;
 	postureY = face.vertices[61];
+	chinY = face.vertices[133]
 	noseTipSpan.innerHTML = face.vertices[61];
 	checkPosture();
 	
