@@ -1,6 +1,6 @@
 var synth = new Tone.AMSynth().toMaster();
 var goodPostureY = 0;
-var badPostureY = 0;
+var badPostureY = 1000000000;
 var postureIsBad = false;
 
 var postureY = 0;
@@ -14,30 +14,6 @@ var audioStartTimeout = -1;
 
 var tones = []
 
-
-function calibrate() {
-	goodPostureY = postureY;
-	badPostureY = Math.min(chinY, goodPostureY + 200);
-}
-
-var audioPlaying  = false
-function playAlert() {
-	
-	if (Tone.context.state !== 'running') {
-		Tone.context.resume();
-	}
-	
-	generateTones()
-	
-	audioPlaying = true
-	for (var i = 0; i < tones.length; i++) {
-		synth.triggerAttackRelease(tones[i], '8n', "+" + (0.2 * i))
-	}
-	
-	if (audioEndTimeout >= 0) clearTimeout(audioEndTimeout);
-	audioEndTimeout = setTimeout(function() {audioPlaying = false;}, 200 * tones.length);
-}
-
 var scale = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 var pitches = [3, 4]
 var notes = []
@@ -49,22 +25,32 @@ for (var p = 0; p < pitches.length; p++) {
 }
 
 var noteIdx = randInt(0, notes.length)
+var maxDeviation = randInt(1, 5)
 
-function generateTones() {
-	var numNotes = randInt(4, 9);
-	var maxDeviation = randInt(1, 5)
-	tones = []
-	for (var i = 0; i < numNotes; i++) {
-		tones.push(notes[noteIdx])
-		noteIdx = noteIdx + randInt(-maxDeviation, maxDeviation)
-		if (noteIdx < 0) {
-			noteIdx *= -1
-		}
-		if (noteIdx >= notes.length) {
-			noteIdx -= notes.length
-		}
+
+function calibrate() {
+	goodPostureY = postureY;
+	badPostureY = Math.min(chinY, goodPostureY + 200);
+}
+
+var audioPlaying  = false
+function playAlert() {
+	if (Tone.context.state !== 'running') {
+		Tone.context.resume();
 	}
-	console.log("tone: " + tones)
+		
+	audioPlaying = true
+	noteIdx = noteIdx + (randInt(-maxDeviation, maxDeviation) || 1)
+	if (noteIdx < 0) {
+		noteIdx *= -1
+	}
+	if (noteIdx >= notes.length) {
+		noteIdx -= notes.length
+	}
+	synth.triggerAttackRelease(notes[noteIdx], '8n')
+	
+	if (audioEndTimeout >= 0) clearTimeout(audioEndTimeout);
+	audioEndTimeout = setTimeout(function() {audioPlaying = false;}, 200);
 }
 
 function randInt(min, max) {
@@ -79,6 +65,7 @@ function tick() {
 		if (!audioPlaying) playAlert()
 	} else if (postureY <= badPostureY) {
 		audioPlaying = false
+		maxDeviation = randInt(1, 5)
 		if (audioStartTimeout > 0) {
 			clearTimeout(audioStartTimeout)
 			audioStartTimeout = -1
