@@ -22,6 +22,7 @@
 <script src="js/utils/BRFv4Stats.js"></script>
 <script src="js/Tone.min.js"></script>
 <script src="js/BRFv4DemoMinimalWebcam.js"></script>
+<script src="js/Posture.js"></script>
 <button type="button" onclick="calibrate()">Calibrate</button>
 <button type="button" onclick="playAudio()">Test Missile Alert</button>
 
@@ -31,56 +32,10 @@
 	var tiltSpan = document.getElementById('_tilt');
 	var noseTipSpan = document.getElementById('_noseTipY');
 	var postureStateSpan = document.getElementById('_postureState');
-	var synth = new Tone.PluckSynth().toMaster();
-	var goodPostureY = 0;
-	var badPostureY = 0;
-	var postureIsBad = false;
 	
 	var postureY = 0;
 	var chinY = 0;
-	
-	
-	const alertDelay = 2000;
-	
-	var nextAlertTimeout = -1;
-	
-	Tone.Transport.schedule(playAlert, 0);
-
-	
-	function calibrate() {
-		goodPostureY = postureY;
-		badPostureY = Math.min(chinY, goodPostureY + 200);
-	}
-	
-	function playAlert(time) {
-		resetToneNotes();
-		synth.triggerAttackRelease(high, '8n', time);
-		synth.triggerAttackRelease(low, '8n', time + 0.2);
-		synth.triggerAttackRelease(high, '8n', time + 0.6);
-		synth.triggerAttackRelease(low, '8n', time + 0.8);
-		Tone.Transport.stop();
-	}
-	
-	var high = '';
-	var low = '';
-	function resetToneNotes() {
-		var scale = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-		var highPitches = [4];
-		var lowPitches = [3];
 		
-		high = scale[Math.floor(Math.random() * scale.length)] + highPitches[Math.floor(Math.random() * highPitches.length)];
-		low = scale[Math.floor(Math.random() * scale.length)] + lowPitches[Math.floor(Math.random() * lowPitches.length)];
-	}
-	resetToneNotes();
-	
-	function playAudio() {
-		if (Tone.context.state !== 'running') {
-			Tone.context.resume();
-		}
-		Tone.Transport.start();
-		nextAlertTimeout = -1;
-	}
-	
 	function drawOverlay(ctx) {
 		ctx.fillStyle = 'rgba(50, 50, 255, 0.5)';
 		ctx.fillRect(0, postureY - 2, ctx.canvas.clientWidth, 4);
@@ -90,24 +45,6 @@
 		ctx.fillRect(0, badPostureY, ctx.canvas.clientWidth, ctx.canvas.clientHeight - badPostureY);
 	}
 	
-	function checkPosture() {
-		if (badPostureY == 0 || goodPostureY == 0) return;
-		var postureWasBad = postureIsBad;
-		
-		postureIsBad = postureY > badPostureY;
-		
-		postureStateSpan.innerHTML = postureIsBad ? "Bad!" : "Good :)";
-		
-		if (nextAlertTimeout < 0 && postureIsBad) {
-			if (!postureWasBad) {
-				resetToneNotes();
-			}
-			nextAlertTimeout = setTimeout(playAudio, alertDelay);
-		} else if (nextAlertTimeout > 0 && !postureIsBad) {
-			clearTimeout(nextAlertTimeout);
-			nextAlertTimeout = -1;
-		}
-	}
   // BRFv4DemoMinimal.js defines: var handleTrackingResults = function(brfv4, faces, imageDataCtx)
   // Here we overwrite it. The initialization code for BRFv4 should always be similar,
   // that's why we put it into its own file.
@@ -137,11 +74,10 @@
       }
     }
 	
-	tiltSpan.innerHTML = face.rotationX * 180.0/Math.PI;
+	
 	postureY = face.vertices[61];
 	chinY = face.vertices[133]
-	noseTipSpan.innerHTML = face.vertices[61];
-	checkPosture();
+	tick()
 	
 	drawOverlay(imageDataCtx);
   };
