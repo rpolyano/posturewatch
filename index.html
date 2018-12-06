@@ -1,37 +1,77 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE HTML>
+<!--
+	Identity by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Posturewatch</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
 
-  <meta charset="utf-8">
-  <title>PostureWatch - BRFv4</title>
+		<!-- Wrapper -->
+			<div id="wrapper">
 
-  <style>
-    html, body { width: 100%; height: 100%; background-color: #ffffff; margin: 0; padding: 0; overflow: hidden; }
-  </style>
-</head>
+				<!-- Main -->
+					<section id="main">
+						<header>
+							<span class="avatar">
+								<video  id="_webcam" style="display: none;" playsinline></video>
+								<canvas id="_imageData"></canvas>
+							</span>
+							<h1 id="status">Status</h1>
+							<p id="status-sub">Status details</p>
+						</header>
+						<footer id="controls">
+							<ul class="icons">
+								<li><a href="#" onclick="calibrate()" class="fa-crosshairs">Recalibrate</a></li>
+							</ul>
+						</footer>
+						<div class="mini">
+							<h2>Hello!</h2>
+								This is a quick thing I whipped up to sit straight at work.<br/>
+								The source code is available on 
+								<a href="https://github.com/rpolyano/posturewatch">GitHub</a>.<br/>
+								<br/>
+								<br/>
+								<h2>Privacy</h2>
+								This application is entirely client side. That means it runs<br/>
+								in your browser. Nothing is stored because there is no server<br/>
+								and no database. Javascript is required though.
+						</div>
+					</section>
 
-<body>
+				<!-- Footer -->
+					<footer id="footer">
+						<ul class="copyright">
+							<li>&copy; Roman Polyanovsky</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+						</ul>
+					</footer>
 
-<video  id="_webcam" style="display: none;" playsinline></video>
-<canvas id="_imageData"></canvas>
-<br/>
-<br/>
-<span id ="_tilt"></span><br/>
-<span id ="_noseTipY"></span><br/>
-<span id ="_postureState"></span>
-<script src="js/utils/BRFv4Stats.js"></script>
-<script src="js/Tone.min.js"></script>
-<script src="js/BRFv4DemoMinimalWebcam.js"></script>
-<script src="js/Posture.js"></script>
-<button type="button" onclick="calibrate()">Calibrate</button>
-<button type="button" onclick="playAlert()">Test Missile Alert</button>
+			</div>
 
-<script>
-
-	
+		<!-- Scripts -->
+			<script>
+				if ('addEventListener' in window) {
+					window.addEventListener('load', function() { document.body.className = document.body.className.replace(/\bis-preload\b/, ''); });
+					document.body.className += (navigator.userAgent.match(/(MSIE|rv:11\.0)/) ? ' is-ie' : '');
+				}
+			</script>
+			<script src="js/utils/BRFv4Stats.js"></script>
+			<script src="js/Tone.min.js"></script>
+			<script src="js/BRFv4DemoMinimalWebcam.js"></script>
+			<script src="js/Posture.js"></script>
+			<script>
 	var tiltSpan = document.getElementById('_tilt');
 	var noseTipSpan = document.getElementById('_noseTipY');
 	var postureStateSpan = document.getElementById('_postureState');
+	var statusSpan = document.getElementById('status');
+	var statusSubSpan = document.getElementById('status-sub');
 	
 	var postureY = 0;
 	var chinY = 0;
@@ -88,8 +128,8 @@
 
     var imageData = document.getElementById("_imageData");
 
-    var ww = 500;
-    var wh = 500;
+    var ww = 640;
+    var wh = 480;
 
     var s = wh / imageData.height;
 
@@ -108,6 +148,5 @@
 
 </script>
 
-</body>
-
+	</body>
 </html>

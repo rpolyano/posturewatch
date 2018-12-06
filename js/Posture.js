@@ -1,7 +1,6 @@
 var synth = new Tone.AMSynth().toMaster();
 var goodPostureY = 0;
 var badPostureY = 1000000000;
-var postureIsBad = false;
 
 var postureY = 0;
 var chinY = 0;
@@ -17,6 +16,11 @@ var tones = []
 var scale = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 var pitches = [3, 4]
 var notes = []
+
+var ticked = false;
+
+// 0 - waiting for camera, 1 - waiting for calibration, 2 - good posture, 3 - bad posture
+var gameState = 0;
 
 for (var p = 0; p < pitches.length; p++) {
 	for (var s = 0; s < scale.length; s++) {
@@ -70,5 +74,40 @@ function tick() {
 			clearTimeout(audioStartTimeout)
 			audioStartTimeout = -1
 		}
+	}
+	
+	ticked = true
+	updategameState()
+}
+
+function updategameState() {
+	if (gameState == 0 && postureY) {
+		gameState = 1;
+	}
+	if (gameState == 1 && badPostureY < 1000000000) {
+		gameState = 2;
+	}
+	if (gameState > 1) {
+		gameState = postureY <= badPostureY ? 2 : 3;
+	}
+	
+	
+	switch (gameState) {
+		case 0:
+		statusSpan.innerText = "Webcam..."
+		statusSubSpan.innerText = "Allow webcam access..."
+		 break;
+		case 1:
+		statusSpan.innerText = "Sit straight..."
+		statusSubSpan.innerText = "Look near bottom of screen and press button"
+		 break;
+		case 2:
+		statusSpan.innerText = "Lookin' Good!"
+		statusSubSpan.innerText = "You'll hear an alert if you start to slouch"
+		 break;
+		case 3:
+		statusSpan.innerText = "Straighten up!"
+		statusSubSpan.innerText = "Annoyed yet?"
+		 break;
 	}
 }
